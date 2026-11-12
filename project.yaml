@@ -1,0 +1,31 @@
+schemaVersion: 4
+rationale: Wegwerf Lab Auszahlung CLI+HTTP (stdlib stubs)
+components:
+  - name: app
+    path: .
+    toolchain:
+      image: agentsphere/sandbox-polyglot
+    verify:
+      - "bash scripts/verify-build.sh"
+    verifySlots:
+      build:
+        command: "bash scripts/verify-build.sh"
+        source: agent
+      lint:
+        command: "bash scripts/verify-lint.sh"
+        source: agent
+      test:
+        command: "bash scripts/verify-tests.sh"
+        source: agent
+    artifacts_ignore: []
+definition_of_done:
+  - green
+network:
+  needs: []
+services:
+  - name: web
+    start: "bash scripts/start-web.sh"
+    port: 8080
+    health:
+      http: /health
+      timeoutSec: 30

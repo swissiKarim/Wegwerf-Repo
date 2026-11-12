@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.agentsphere/reports/
+.agentsphere/sandbox-meta.json
