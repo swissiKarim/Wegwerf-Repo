@@ -1,0 +1,18 @@
+schemaVersion: 2
+rationale: Python stdlib app with CLI and HTTP payout endpoint; pytest for smoke tests; scenario drivers verify AC-1/AC-2/AC-3
+components:
+  - name: app
+    path: .
+    toolchain:
+      image: agentsphere/sandbox-polyglot
+    verify:
+      - python -m pytest tests/test_smoke.py -v --junitxml=.agentsphere/reports/junit.xml
+      - python payout_cli.py --brutto 1000
+      - python payout_cli.py --brutto 100.5
+    artifacts_ignore:
+      - __pycache__/
+      - .pytest_cache/
+definition_of_done:
+  - All verify commands pass on the submitted commit
+network:
+  needs: []

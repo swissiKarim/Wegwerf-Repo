@@ -1,9 +1,11 @@
-"""Minimal HTTP app (stdlib only). Stubs — Developer must implement payout."""
+"""Minimal HTTP app (stdlib only). Payout brutto→netto."""
 
 from __future__ import annotations
 
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+from payout_cli import compute_net_payout
 
 
 HOST = "127.0.0.1"
@@ -32,17 +34,34 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.split("?", 1)[0] != "/payout":
             self._send(404, {"ok": False, "error": "not_found"})
             return
-        # STUB: real story requires brutto→netto JSON body.
+
+        # Read body
         length = int(self.headers.get("Content-Length") or 0)
-        _ = self.rfile.read(length) if length else b""
-        self._send(
-            501,
-            {
-                "ok": False,
-                "error": "not_implemented",
-                "hint": "implement brutto to netto payout",
-            },
-        )
+        raw = self.rfile.read(length) if length else b""
+
+        # Parse JSON
+        try:
+            data = json.loads(raw) if raw else {}
+        except json.JSONDecodeError:
+            self._send(400, {"ok": False, "error": "invalid JSON"})
+            return
+
+        # Validate brutto field
+        if "brutto" not in data:
+            self._send(400, {"ok": False, "error": "missing field: brutto"})
+            return
+
+        brutto = data["brutto"]
+        if not isinstance(brutto, (int, float)) or isinstance(brutto, bool):
+            self._send(400, {"ok": False, "error": "brutto must be a number"})
+            return
+
+        if brutto < 0:
+            self._send(400, {"ok": False, "error": "brutto must be >= 0"})
+            return
+
+        net = compute_net_payout(float(brutto))
+        self._send(200, {"ok": True, "brutto": brutto, "net_payout": net})
 
 
 def serve(host: str = HOST, port: int = PORT) -> None:
