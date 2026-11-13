@@ -25,3 +25,9 @@ Dienst:
 ./scripts/start-web.sh
 # GET http://127.0.0.1:8080/health
 ```
+
+## Project contract
+
+Der Vertrag liegt unter `.agentsphere/project.yaml` (schemaVersion 4, inkl. `services.web`).
+Nicht mehr im Repo-Root als `project.yaml`.
+
